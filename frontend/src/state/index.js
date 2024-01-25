@@ -4,7 +4,11 @@ const initialState = {
   user: null,
   token: null,
   currentUrl: null,
-  collaboratorMode: true
+  collaboratorMode: true,
+  doc: {
+    docId: '',
+    title: ''
+  }
 };
 
 export const authSlice = createSlice({
@@ -24,10 +28,14 @@ export const authSlice = createSlice({
     },
     setCollaboratorMode: (state, action) => {
       state.collaboratorMode = action.payload.collaboratorMode;
+    },
+    setDocDetails: (state, action) => {
+      state.doc.docId = action.payload.docId;
+      state.doc.title = action.payload.docTitle;
     }
   },
 });
 
-export const { setLogin, setLogout, setCurrentURL, setCollaboratorMode } =
+export const { setLogin, setLogout, setCurrentURL, setCollaboratorMode, setDocDetails } =
   authSlice.actions;
 export default authSlice.reducer;

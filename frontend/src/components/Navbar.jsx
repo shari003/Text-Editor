@@ -1,27 +1,55 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { AppBar, Button, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
-import {ArrowDropDownOutlined} from "@mui/icons-material";
-import React, { useRef, useState } from 'react';
+import { AppBar, Button, IconButton, InputBase, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import {ArrowDropDownOutlined, Search} from "@mui/icons-material";
+import React, { useEffect, useRef, useState } from 'react';
 import FlexBetween from "./FlexBetween.jsx";
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux";
-import { setLogout } from "../state/index.js";
+import { setDocDetails, setLogout } from "../state/index.js";
 import { useNavigate } from 'react-router-dom';
 import {v4 as uuidV4} from "uuid";
 
 const Navbar = () => {
 
-    const { user, token, currentUrl, collaboratorMode} = useSelector(store => store);
+    const { user, token, currentUrl, collaboratorMode, doc} = useSelector(store => store);
+    const { docId, title } = doc;
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { pathname } = useLocation();
     const [showModal, setShowModal] = useState(false);
+    const titleRef = useRef(null);
     const collabUserId = useRef(null);
 
     const [anchorEl, setAnchorEl] = useState(null);
     const isOpen = Boolean(anchorEl);
+
+    const setTitle = () => {
+
+        const setDocTitle = async() => {
+            const response = await fetch(
+                "http://localhost:3001/doc/setTitle",
+                {
+                  method: "PATCH",
+                  headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", },
+                  body: JSON.stringify({
+                    userId: user._id,
+                    docTitle: titleRef.current.value,
+                    docId: docId,
+                  }),
+                }
+            );
+            const data = await response.json();
+
+            if(data.success){
+                dispatch(setDocDetails({docId, docTitle: data.docTitle}));
+            }
+
+        }
+
+        setDocTitle();
+    }
     
     const handleSignOut = () => {
         dispatch(setLogout());
@@ -85,13 +113,39 @@ const Navbar = () => {
                         gap={"3rem"}
                         p={"0.1rem 1.5rem"}
                     >
-                        <Typography fontWeight={"bold"} fontSize={"1.5rem"} sx={{
-                                  color: "#ffedc2"
-                        }}>
-                            <Link to={currentUrl} style={{color: "#ffedc2", textDecoration: "none"}}>
-                                TextEditor
-                            </Link>
-                        </Typography>
+                            {pathname.includes('/editor') ? (
+                                <>
+                                    <FlexBetween 
+                                        borderRadius={"9px"}
+                                        gap={"1rem"}
+                                        p={"0.1rem 1.5rem"}
+                                    >
+                                        <input placeholder={title === "" ? "Set Title" : title} className='text-[#ffedc2] text-2xl font-bold bg-[#191F45] border-none' ref={titleRef} />
+
+                                        <Button sx={{
+                                            color: "#ffedc2",
+                                            p: "1px",
+                                            border: "1px solid #ffedc2",
+                                            "&:hover": {
+                                                color: "#191F45",
+                                                bgcolor: "#ffedc2"
+                                            }
+                                        }} onClick={setTitle}>
+                                            Set
+                                        </Button>
+                                    </FlexBetween>
+                                </>
+                            ) : (
+                                <>
+                                    <Typography fontWeight={"bold"} fontSize={"1.5rem"} sx={{
+                                        color: "#ffedc2"
+                                    }}>
+                                        <Link to={currentUrl} style={{color: "#ffedc2", textDecoration: "none"}}>
+                                            TextEditor
+                                        </Link>
+                                    </Typography>
+                                </>
+                            )}
                     </FlexBetween>
                 </FlexBetween>
 

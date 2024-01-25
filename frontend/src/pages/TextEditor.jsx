@@ -8,7 +8,7 @@ import { io } from "socket.io-client";
 import {useDispatch, useSelector} from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import {v4 as uuidV4} from "uuid";
-import { setCollaboratorMode } from "../state";
+import { setCollaboratorMode, setDocDetails } from "../state";
 
 const TextEditor = () => {
 
@@ -35,11 +35,12 @@ const TextEditor = () => {
         const data = await response.json();
         setSuccess(data.success);
         setSuccessMessage(data.message);
-        dispatch(setCollaboratorMode({collaboratorMode: data.collaborator}))
+        dispatch(setCollaboratorMode({collaboratorMode: data.collaborator}));
+        dispatch(setDocDetails({docId: documentId, docTitle: data.docTitle}));
     }
 
     useEffect(() => {
-
+        console.log("first time");
         accessDoc();
         if(!success){
             setSocket(null);
@@ -55,6 +56,7 @@ const TextEditor = () => {
 
         return () => {
             s.disconnect();
+            dispatch(setDocDetails({docId: '', docTitle: ''}));
         }
     }, []);
 

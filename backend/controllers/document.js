@@ -14,6 +14,7 @@ const findOrCreateDocument = async(id, userId) => {
     return await Document.create({
         _id: id,
         userId,
+        title: "",
         data: defaultValue,
     });
 }
@@ -29,11 +30,14 @@ const accessDocument = async(req, res) => {
             await Document.create({
                 _id: docId,
                 userId,
+                title: "",
                 data: defaultValue,
             });
 
             return res.status(201).json({
                 success: true,
+                collaborator: false,
+                docTitle: document.title,
                 message: "New Document Created",
             });
             
@@ -44,6 +48,7 @@ const accessDocument = async(req, res) => {
             return res.status(200).json({
                 success: true,
                 collaborator: false,
+                docTitle: document.title,
                 message: "Document Found",
             });
         // user trying to access other's document            
@@ -51,6 +56,7 @@ const accessDocument = async(req, res) => {
             return res.status(200).json({
                 success: true,
                 collaborator: true,
+                docTitle: document.title,
                 message: "Collaborating Document Found",
             });
         } else {
@@ -157,9 +163,36 @@ const listOfDocs = async(req, res) => {
     }
 }
 
+const setDocTitle = async(req, res) => {
+    try{
+        const { userId, docTitle, docId } = req.body;
+        const document = await Document.findById(docId);
+
+        if(document.userId == userId){
+            document.title = docTitle;
+        }
+
+        await document.save();
+
+        return res.status(200).json({
+            success: true,
+            docTitle: document.title,
+            message: 'Title has been set now',
+        });
+
+
+    }catch(err){
+        res.status(400).json({
+            success: false,
+            message: err.message
+        })
+    }
+}
+
 module.exports = {
     findOrCreateDocument,
     accessDocument,
     addCollaborator,
-    listOfDocs
+    listOfDocs,
+    setDocTitle
 }
