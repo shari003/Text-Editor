@@ -22,6 +22,9 @@ export const authSlice = createSlice({
     setLogout: (state) => {
       state.user = null;
       state.token = null;
+      state.currentUrl = null;
+      state.doc.docId = null;
+      state.doc.title = null;
     },
     setCurrentURL: (state, action) => {
       state.currentUrl = action.payload.path;

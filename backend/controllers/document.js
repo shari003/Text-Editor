@@ -37,7 +37,7 @@ const accessDocument = async(req, res) => {
             return res.status(201).json({
                 success: true,
                 collaborator: false,
-                docTitle: document.title,
+                docTitle: document?.title,
                 message: "New Document Created",
             });
             
@@ -48,7 +48,7 @@ const accessDocument = async(req, res) => {
             return res.status(200).json({
                 success: true,
                 collaborator: false,
-                docTitle: document.title,
+                docTitle: document?.title,
                 message: "Document Found",
             });
         // user trying to access other's document            
@@ -56,7 +56,7 @@ const accessDocument = async(req, res) => {
             return res.status(200).json({
                 success: true,
                 collaborator: true,
-                docTitle: document.title,
+                docTitle: document?.title,
                 message: "Collaborating Document Found",
             });
         } else {
@@ -66,6 +66,7 @@ const accessDocument = async(req, res) => {
             });
         }
     }catch(err){
+        console.log("ERROR: ", err.message);
         res.status(400).json({
             success: false,
             message: err.message
